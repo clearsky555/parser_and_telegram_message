@@ -1,0 +1,76 @@
+version: "3.8"
+services:
+
+  tgparser_app:
+    container_name: tgparser_app
+    restart: always
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: run
+    volumes:
+      - .:/app/
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+    env_file:
+      - .env
+    ports:
+      - 8006:8006
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    restart: always
+    networks:
+      - main
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+      - ./services/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+
+  celery:
+    container_name: celery
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: celery -A tgparser worker -B --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - rabbitmq
+      - tgparser_app
+    networks:
+      - main
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    links:
+      - rabbitmq:rabbitmq
+
+  flower:
+    image: mher/flower
+    container_name: flower
+    ports:
+      - "5555:5555"
+    networks:
+      - main
+    environment:
+      CELERY_BROKER_URL: amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672
+#      CELERY_RESULT_BACKEND: 'django-db'
+      FLOWER_BASIC_AUTH: ${FLOWER_USER}:${FLOWER_PASSWORD}
+    restart: always
+    depends_on:
+      - rabbitmq
+      - celery
+volumes:
+  postgres:
+  rabbitmq:
+  static:
+networks:
+  main:
+    driver: bridge

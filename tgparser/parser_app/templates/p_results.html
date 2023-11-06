@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты парсинга</title>
+</head>
+<body>
+    <h1>Результаты парсинга</h1>
+    <table border="1">
+        <tr>
+            <th>Title</th>
+            <th>Som</th>
+            <th>Dollar</th>
+            <th>Mobile</th>
+            <th>Description</th>
+            <th>Link</th>
+        </tr>
+        {% for data in parsed_data %}
+            <tr>
+                <td>{{ data.title }}</td>
+                <td>{{ data.som }}</td>
+                <td>{{ data.dollar }}</td>
+                <td>{{ data.mobile }}</td>
+                <td>{{ data.description }}</td>
+                <td>{{ data.link }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
