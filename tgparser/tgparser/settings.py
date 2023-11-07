@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -126,7 +129,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+CELERY_BROKER_URL = 'redis://redis:6379/0'
 # С ЭТОЙ НАСТРОЙКОЙ ЛОКАЛЬНО ПРИЛОЖЕНИЕ РАБОТАЕТ
 # CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672/'
 
@@ -134,7 +137,7 @@ RABBITMQ_DEFAULT_USER = os.getenv('RABBITMQ_DEFAULT_USER')
 
 RABBITMQ_DEFAULT_PASS = os.getenv('RABBITMQ_DEFAULT_PASS')
 
-CELERY_BROKER_URL = f'amqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@rabbitmq:5672/'
+# CELERY_BROKER_URL = f'amqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@localhost:5672/'
 
 # CELERY_RESULT_BACKEND = 'django-db'
 

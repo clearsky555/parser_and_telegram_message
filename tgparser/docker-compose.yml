@@ -33,6 +33,13 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
 
+  redis:
+    container_name: parser_redis
+    restart: always
+    image: redis:6.0.9-alpine
+    expose:
+      - 6379
+
   celery:
     container_name: celery
     build:
@@ -42,15 +49,16 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - rabbitmq
+      - redis
       - tgparser_app
     networks:
       - main
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+#    environment:
+#      CELERY_BROKER_URL: amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672
+#      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+#      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     links:
-      - rabbitmq:rabbitmq
+      - redis
 
   flower:
     image: mher/flower
